@@ -19,3 +19,6 @@ coverage/
 api-doc.md
 docs/
 typedoc.js
+globalTeardown.ts
+globalSetup.ts
+.eslintcache

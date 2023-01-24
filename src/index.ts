@@ -1,3 +1,4 @@
-const blah = 'abcd'
+import f from './MongoStore'
+export { MongoStoreParams, MongoSessionCleanupStrategy } from './MongoStoreBase'
 
-console.log(blah)
+export const mongoStoreFactory = f

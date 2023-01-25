@@ -1,5 +1,5 @@
 import session from 'express-session'
-import { Collection, CreateIndexesOptions, MongoClient } from 'mongodb'
+import { Collection, MongoClient } from 'mongodb'
 import { millisecondsToSeconds } from 'date-fns'
 
 const debug = require('debug')('mongo-express-session')
@@ -7,7 +7,7 @@ const debug = require('debug')('mongo-express-session')
 export enum MongoSessionCleanupStrategy {
   /**
    * Use the mongo index TTL to clean out expired entries. Once this is set, you will have to
-   * manually remove the 'session_id_idx' index from your collection if you want to use the
+   * manually remove the 'updated_at_ttl_idx' index from your collection if you want to use the
    * interval strategy.
    */
   native = 'native',
@@ -105,21 +105,14 @@ export class MongoStoreBase {
       this.client = this.config.client
       this.collection = this.client.db(this.config.dbName).collection<SessionData>(this.config.collection)
 
-      const options: CreateIndexesOptions = {
-        unique: true,
-        name: 'session_id_idx',
-      }
-
-      if (!this.config.cleanupStrategy || this.config.cleanupStrategy === MongoSessionCleanupStrategy.native) {
-        debug('Using native cleanup strategy')
-        options.expireAfterSeconds = millisecondsToSeconds(this.config.ttlMs)
-      }
-
       await this.collection.createIndex(
         {
           sessionId: 1,
         },
-        options,
+        {
+          unique: true,
+          name: 'session_id_idx',
+        },
       )
 
       await this.collection.createIndex(
@@ -131,6 +124,20 @@ export class MongoStoreBase {
           name: 'session_id_expires_idx',
         },
       )
+
+      if (!this.config.cleanupStrategy || this.config.cleanupStrategy === MongoSessionCleanupStrategy.native) {
+        debug('Using native cleanup strategy')
+
+        await this.collection.createIndex(
+          {
+            updatedAt: 1,
+          },
+          {
+            name: 'updated_at_ttl_idx',
+            expireAfterSeconds: millisecondsToSeconds(this.config.ttlMs),
+          },
+        )
+      }
 
       this.hasInit = true
     }

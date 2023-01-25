@@ -93,7 +93,7 @@ app.use(session({
 enum MongoSessionCleanupStrategy {
   /**
    * Use the mongo index TTL to clean out expired entries. Once this is set, you will have to
-   * manually remove the 'session_id_idx' index from your collection if you want to use the
+   * manually remove the 'updated_at_ttl_idx' index from your collection if you want to use the
    * interval strategy.
    */
   native = 'native',

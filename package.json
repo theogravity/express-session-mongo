@@ -1,7 +1,7 @@
 {
   "name": "mongo-express-session",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A session store for express-session using MongoDB with no mongodb client dependency.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
